@@ -1,0 +1,123 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horse Race LIVE</title>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: Arial;
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .track {
+      position: relative;
+      width: 90%;
+      height: 100px;
+      border-bottom: 2px solid #444;
+      margin: 20px auto;
+    }
+
+    .horse {
+      position: absolute;
+      left: 0;
+      top: 20px;
+      transition: left 0.3s linear;
+      font-size: 40px;
+    }
+
+    .label {
+      position: absolute;
+      top: -5px;
+      left: 60px;
+      font-size: 24px;
+    }
+
+    .finish {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 10px;
+      height: 100%;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+
+<h1>TikTok LIVE Horse Race</h1>
+
+<div class="track">
+  <div class="finish"></div>
+  <div class="horse" id="romaniaHorse">🐎 🇷🇴</div>
+  <div class="label">Romania</div>
+</div>
+
+<div class="track">
+  <div class="finish"></div>
+  <div class="horse" id="italyHorse">🐎 🇮🇹</div>
+  <div class="label">Italy</div>
+</div>
+
+<div class="track">
+  <div class="finish"></div>
+  <div class="horse" id="franceHorse">🐎 🇫🇷</div>
+  <div class="label">France</div>
+</div>
+
+<div class="track">
+  <div class="finish"></div>
+  <div class="horse" id="germanyHorse">🐎 🇩🇪</div>
+  <div class="label">Germany</div>
+</div>
+
+<script>
+
+const socket = io();
+
+const horses = {
+  romania: document.getElementById('romaniaHorse'),
+  italy: document.getElementById('italyHorse'),
+  france: document.getElementById('franceHorse'),
+  germany: document.getElementById('germanyHorse')
+};
+
+socket.on('updateRace', data => {
+
+  horses.romania.style.left = data.romania + 'px';
+  horses.italy.style.left = data.italy + 'px';
+  horses.france.style.left = data.france + 'px';
+  horses.germany.style.left = data.germany + 'px';
+
+  checkWinner(data);
+});
+
+function checkWinner(data) {
+
+  for (const horse in data) {
+
+    if (data[horse] >= 1000) {
+
+      setTimeout(() => {
+        alert(horse.toUpperCase() + ' WINS!');
+        location.reload();
+      }, 200);
+
+    }
+  }
+}
+
+</script>
+
+</body>
+</html>
