@@ -1,84 +1,368 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Horse Race LIVE</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="/socket.io/socket.io.js"></script>
+<title>TikTok LIVE Horse Race</title>
 
-  <style>
-    body {
-      margin: 0;
-      background: #111;
-      color: white;
-      font-family: Arial;
-      overflow: hidden;
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    width:100%;
+    height:100vh;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+
+    background:url('images/background.jpg');
+    background-size:cover;
+    background-position:center;
+
+    position:relative;
+}
+
+/* DARK OVERLAY */
+
+body::before{
+    content:'';
+    position:absolute;
+    inset:0;
+
+    background:rgba(0,0,0,0.55);
+
+    z-index:0;
+}
+
+.container{
+    position:relative;
+    z-index:2;
+
+    width:100%;
+    height:100vh;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:25px;
+
+    padding:30px;
+}
+
+.title{
+    text-align:center;
+    color:white;
+    font-size:60px;
+    font-weight:bold;
+
+    text-shadow:
+    0 0 10px #fff,
+    0 0 20px #ff00ff,
+    0 0 40px #ff00ff;
+
+    margin-bottom:30px;
+
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+
+    0%{
+        transform:scale(1);
     }
 
-    h1 {
-      text-align: center;
-      margin-top: 20px;
+    50%{
+        transform:scale(1.03);
     }
 
-    .track {
-      position: relative;
-      width: 90%;
-      height: 100px;
-      border-bottom: 2px solid #444;
-      margin: 20px auto;
+    100%{
+        transform:scale(1);
     }
 
-    .horse {
-      position: absolute;
-      left: 0;
-      top: 20px;
-      transition: left 0.3s linear;
-      font-size: 40px;
+}
+
+/* TRACK */
+
+.track{
+    position:relative;
+
+    width:100%;
+    height:140px;
+
+    border-radius:25px;
+
+    overflow:hidden;
+
+    border:3px solid rgba(255,255,255,0.3);
+
+    backdrop-filter:blur(6px);
+
+    background:
+    repeating-linear-gradient(
+        90deg,
+        #222 0px,
+        #222 40px,
+        #333 40px,
+        #333 80px
+    );
+
+    animation:moveTrack 1s linear infinite;
+
+    box-shadow:
+    0 0 15px rgba(255,255,255,0.2),
+    inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+@keyframes moveTrack{
+
+    from{
+        background-position:0 0;
     }
 
-    .label {
-      position: absolute;
-      top: -5px;
-      left: 60px;
-      font-size: 24px;
+    to{
+        background-position:-80px 0;
     }
 
-    .finish {
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 10px;
-      height: 100%;
-      background: white;
+}
+
+/* FINISH LINE */
+
+.finish{
+    position:absolute;
+
+    right:0;
+    top:0;
+
+    width:15px;
+    height:100%;
+
+    background:
+    repeating-linear-gradient(
+        white 0px,
+        white 20px,
+        black 20px,
+        black 40px
+    );
+
+    z-index:5;
+}
+
+/* HORSE */
+
+.horse{
+    position:absolute;
+
+    left:0;
+    top:15px;
+
+    transition:left .25s linear;
+
+    z-index:10;
+}
+
+.horse img{
+    width:120px;
+
+    filter:
+    drop-shadow(0 0 15px gold)
+    drop-shadow(0 0 25px orange);
+
+    animation:horseBounce .4s infinite alternate;
+}
+
+@keyframes horseBounce{
+
+    from{
+        transform:translateY(0px);
     }
-  </style>
+
+    to{
+        transform:translateY(-6px);
+    }
+
+}
+
+/* LABEL */
+
+.label{
+    position:absolute;
+
+    left:15px;
+    top:10px;
+
+    color:white;
+
+    font-size:28px;
+    font-weight:bold;
+
+    text-shadow:
+    0 0 10px black,
+    0 0 20px black;
+
+    z-index:20;
+}
+
+/* RUNNING TEXT */
+
+.banner{
+    position:absolute;
+
+    top:90px;
+    right:-400px;
+
+    font-size:22px;
+    font-weight:bold;
+
+    color:#00ffea;
+
+    text-shadow:
+    0 0 10px #00ffea,
+    0 0 20px #00ffea;
+
+    animation:bannerMove 8s linear infinite;
+
+    z-index:20;
+}
+
+@keyframes bannerMove{
+
+    from{
+        right:-400px;
+    }
+
+    to{
+        right:100%;
+    }
+
+}
+
+/* WINNER SCREEN */
+
+#winnerPopup{
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,0.8);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    flex-direction:column;
+
+    z-index:999;
+}
+
+#winnerPopup h1{
+    color:white;
+
+    font-size:100px;
+
+    text-shadow:
+    0 0 20px gold,
+    0 0 40px gold;
+
+    animation:pulse 1s infinite;
+}
+
+</style>
 </head>
 <body>
 
-<h1>TikTok LIVE Horse Race</h1>
+<div class="container">
 
-<div class="track">
-  <div class="finish"></div>
-  <div class="horse" id="romaniaHorse">🐎 🇷🇴</div>
-  <div class="label">Romania</div>
+<div class="title">
+🏆 TIKTOK LIVE HORSE RACE 🏆
 </div>
 
-<div class="track">
-  <div class="finish"></div>
-  <div class="horse" id="italyHorse">🐎 🇮🇹</div>
-  <div class="label">Italy</div>
-</div>
+<!-- ROMANIA -->
 
 <div class="track">
-  <div class="finish"></div>
-  <div class="horse" id="franceHorse">🐎 🇫🇷</div>
-  <div class="label">France</div>
+
+<div class="finish"></div>
+
+<div class="label">🇷🇴 ROMANIA</div>
+
+<div class="banner">
+TEAM ROMANIA BOOST 🔥🔥🔥
 </div>
 
+<div class="horse" id="romaniaHorse">
+<img src="images/horse1.gif">
+</div>
+
+</div>
+
+<!-- ITALY -->
+
 <div class="track">
-  <div class="finish"></div>
-  <div class="horse" id="germanyHorse">🐎 🇩🇪</div>
-  <div class="label">Germany</div>
+
+<div class="finish"></div>
+
+<div class="label">🇮🇹 ITALY</div>
+
+<div class="banner">
+ITALY IS SPEEDING ⚡⚡⚡
+</div>
+
+<div class="horse" id="italyHorse">
+<img src="images/horse2.gif">
+</div>
+
+</div>
+
+<!-- FRANCE -->
+
+<div class="track">
+
+<div class="finish"></div>
+
+<div class="label">🇫🇷 FRANCE</div>
+
+<div class="banner">
+FRANCE ATTACK MODE 🔥
+</div>
+
+<div class="horse" id="franceHorse">
+<img src="images/horse3.gif">
+</div>
+
+</div>
+
+<!-- GERMANY -->
+
+<div class="track">
+
+<div class="finish"></div>
+
+<div class="label">🇩🇪 GERMANY</div>
+
+<div class="banner">
+GERMANY TURBO MODE ⚡
+</div>
+
+<div class="horse" id="germanyHorse">
+<img src="images/horse4.gif">
+</div>
+
+</div>
+
+</div>
+
+<!-- WINNER -->
+
+<div id="winnerPopup">
+
+<h1 id="winnerText"></h1>
+
 </div>
 
 <script>
@@ -86,35 +370,46 @@
 const socket = io();
 
 const horses = {
-  romania: document.getElementById('romaniaHorse'),
-  italy: document.getElementById('italyHorse'),
-  france: document.getElementById('franceHorse'),
-  germany: document.getElementById('germanyHorse')
+
+    romania:document.getElementById('romaniaHorse'),
+    italy:document.getElementById('italyHorse'),
+    france:document.getElementById('franceHorse'),
+    germany:document.getElementById('germanyHorse')
+
 };
 
 socket.on('updateRace', data => {
 
-  horses.romania.style.left = data.romania + 'px';
-  horses.italy.style.left = data.italy + 'px';
-  horses.france.style.left = data.france + 'px';
-  horses.germany.style.left = data.germany + 'px';
+    horses.romania.style.left = data.romania + 'px';
+    horses.italy.style.left = data.italy + 'px';
+    horses.france.style.left = data.france + 'px';
+    horses.germany.style.left = data.germany + 'px';
 
-  checkWinner(data);
+    checkWinner(data);
+
 });
 
-function checkWinner(data) {
+function checkWinner(data){
 
-  for (const horse in data) {
+    for(const horse in data){
 
-    if (data[horse] >= 1000) {
+        if(data[horse] >= 1400){
 
-      setTimeout(() => {
-        alert(horse.toUpperCase() + ' WINS!');
-        location.reload();
-      }, 200);
+            document.getElementById('winnerPopup').style.display='flex';
+
+            document.getElementById('winnerText').innerHTML =
+            horse.toUpperCase() + ' WINS 🏆';
+
+            setTimeout(()=>{
+
+                location.reload();
+
+            },5000);
+
+        }
 
     }
-  }
+
 }
 
 </script>
